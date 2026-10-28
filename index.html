@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SplitMate | Split Bills, Not Friendships</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981', // Emerald 500
+                            600: '#059669', // Emerald 600
+                            900: '#064e3b',
+                        },
+                        dark: '#0f172a', // Slate 900
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles & Animations */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Toast Notification Styles */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            background-color: #1e293b;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            color: #10b981;
+            font-size: 1.25rem;
+        }
+
+        /* App mockup subtle float */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Navigation -->
+    <header class="fixed w-full top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-brand-500/30">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <span class="font-bold text-2xl text-dark tracking-tight">SplitMate</span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#home" class="text-slate-600 hover:text-brand-600 font-medium transition-colors">Home</a>
+                    <a href="#features" class="text-slate-600 hover:text-brand-600 font-medium transition-colors">Features</a>
+                    <a href="#how-it-works" class="text-slate-600 hover:text-brand-600 font-medium transition-colors">How it Works</a>
+                    <a href="#contact" class="text-slate-600 hover:text-brand-600 font-medium transition-colors">Contact</a>
+                </nav>
+
+                <!-- CTA Button -->
+                <div class="hidden md:flex items-center">
+                    <button onclick="simulateDownload()" class="bg-brand-500 hover:bg-brand-600 text-white px-6 py-2.5 rounded-full font-medium transition-all shadow-lg shadow-brand-500/30 flex items-center gap-2 transform hover:-translate-y-0.5">
+                        <i class="fa-brands fa-android text-lg"></i>
+                        Get the App
+                    </button>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-slate-600 hover:text-dark focus:outline-none p-2">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-100 absolute w-full">
+            <div class="px-4 pt-2 pb-6 space-y-2 shadow-xl">
+                <a href="#home" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50">Home</a>
+                <a href="#features" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50">Features</a>
+                <a href="#how-it-works" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50">How it Works</a>
+                <a href="#contact" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50">Contact</a>
+                <button onclick="simulateDownload()" class="w-full mt-4 bg-brand-500 text-white px-4 py-3 rounded-lg font-medium flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-android"></i> Download for Android
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <main>
+        
+        <!-- SECTION 1: HOME (HERO) -->
+        <section id="home" class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+            <!-- Background Decorations -->
+            <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-brand-100 opacity-50 blur-3xl -z-10"></div>
+            <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-72 h-72 rounded-full bg-blue-100 opacity-50 blur-3xl -z-10"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+                <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-center">
+                    
+                    <!-- Hero Text -->
+                    <div class="lg:col-span-6 text-center lg:text-left fade-in-up">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-100 text-brand-600 text-sm font-semibold mb-6">
+                            <span class="relative flex h-2 w-2">
+                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+                            </span>
+                            v2.0 is now live!
+                        </div>
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-dark leading-tight mb-6">
+                            Split Bills, Not <br/><span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-emerald-400">Friendships.</span>
+                        </h1>
+                        <p class="text-lg sm:text-xl text-slate-600 mb-8 max-w-2xl mx-auto lg:mx-0">
+                            The smartest way to track shared expenses, settle balances effortlessly, and chat with your friends—all in one seamless Android app.
+                        </p>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                            <button onclick="simulateDownload()" class="bg-dark hover:bg-slate-800 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-3 transform hover:-translate-y-1">
+                                <i class="fa-brands fa-android text-2xl text-brand-400"></i>
+                                <div class="text-left">
+                                    <div class="text-xs text-slate-300 font-normal leading-tight">Download APK for</div>
+                                    <div class="text-lg leading-tight">Android</div>
+                                </div>
+                            </button>
+                            <a href="#how-it-works" class="bg-white hover:bg-slate-50 text-dark border border-slate-200 px-8 py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 hover:border-slate-300">
+                                See how it works <i class="fa-solid fa-arrow-right text-sm"></i>
+                            </a>
+                        </div>
+                        <p class="mt-4 text-sm text-slate-500 flex items-center justify-center lg:justify-start gap-2">
+                            <i class="fa-solid fa-check-circle text-brand-500"></i> Free forever &bull; No ads
+                        </p>
+                    </div>
+
+                    <!-- Hero Image/Mockup -->
+                    <div class="lg:col-span-6 mt-16 lg:mt-0 relative fade-in-up" style="transition-delay: 200ms;">
+                        <div class="relative mx-auto w-full max-w-[320px] lg:max-w-md animate-float">
+                            <!-- Simulated Phone Frame -->
+                            <div class="bg-dark rounded-[3rem] p-4 shadow-2xl border-4 border-slate-800 relative z-10">
+                                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-dark rounded-b-xl z-20"></div>
+                                <div class="bg-white rounded-[2rem] overflow-hidden relative" style="aspect-ratio: 9/19;">
+                                    
+                                    <!-- App UI Mockup -->
+                                    <div class="h-full w-full bg-slate-50 flex flex-col">
+                                        <!-- App Header -->
+                                        <div class="bg-brand-500 p-6 pt-12 text-white rounded-b-3xl shadow-sm">
+                                            <div class="flex justify-between items-center mb-4">
+                                                <div class="font-bold text-xl">Trip to Bali 🌴</div>
+                                                <i class="fa-solid fa-gear"></i>
+                                            </div>
+                                            <div class="text-brand-100 text-sm">Total Group Spend</div>
+                                            <div class="text-3xl font-bold mt-1">$1,240.50</div>
+                                        </div>
+                                        <!-- App Body -->
+                                        <div class="flex-1 p-4 overflow-hidden">
+                                            <div class="text-sm font-semibold text-slate-500 mb-3">Recent Activity</div>
+                                            
+                                            <!-- Expense Item -->
+                                            <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-100 mb-3 flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                                    <i class="fa-solid fa-burger"></i>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <div class="font-semibold text-sm">Dinner at Luigi's</div>
+                                                    <div class="text-xs text-slate-500">Paid by Alex</div>
+                                                </div>
+                                                <div class="font-bold text-sm text-red-500">You owe $25</div>
+                                            </div>
+
+                                            <!-- Expense Item -->
+                                            <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-100 mb-3 flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                                                    <i class="fa-solid fa-taxi"></i>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <div class="font-semibold text-sm">Uber to Hotel</div>
+                                                    <div class="text-xs text-slate-500">Paid by You</div>
+                                                </div>
+                                                <div class="font-bold text-sm text-brand-500">You get $15</div>
+                                            </div>
+
+                                            <!-- Chat Bubble -->
+                                            <div class="mt-6">
+                                                <div class="text-sm font-semibold text-slate-500 mb-3">Group Chat</div>
+                                                <div class="bg-brand-50 border border-brand-100 p-3 rounded-2xl rounded-tl-sm text-sm text-slate-700 w-3/4 mb-2">
+                                                    Hey guys, I added the dinner bill! 🍕
+                                                </div>
+                                                <div class="bg-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm text-slate-700 w-2/3 ml-auto">
+                                                    Got it, will settle up tomorrow!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End App UI Mockup -->
+                                    
+                                </div>
+                            </div>
+                            
+                            <!-- Floating Badge -->
+                            <div class="absolute -right-6 top-32 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 z-20 animate-bounce" style="animation-duration: 3s;">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xl">
+                                        <i class="fa-solid fa-check"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-slate-500 font-medium">Settled up</div>
+                                        <div class="font-bold text-dark">$120.00</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: FEATURES & BENEFITS -->
+        <section id="features" class="py-20 bg-white relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-3xl mx-auto mb-16 fade-in-up">
+                    <h2 class="text-brand-600 font-semibold tracking-wide uppercase text-sm mb-2">Everything You Need</h2>
+                    <h3 class="text-3xl sm:text-4xl font-bold text-dark mb-4">Powerful features to manage shared expenses</h3>
+                    <p class="text-lg text-slate-600">From splitting the rent with roommates to calculating costs for a weekend getaway, SplitMate handles the math so you don't have to.</p>
+                </div>
+
+                <!-- Features Grid -->
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    
+                    <!-- Feature 1 -->
+                    <div class="bg-slate-50 rounded-2xl p-8 border border-slate-100 hover:shadow-lg hover:border-brand-200 transition-all duration-300 group fade-in-up">
+                        <div class="w-14 h-14 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-brand-500 text-2xl mb-6 group-hover:scale-110 group-hover:bg-brand-500 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-dark mb-3">Add & Split Bills</h4>
+                        <p class="text-slate-600 leading-relaxed text-sm">
+                            Add receipts instantly. Split expenses equally, by percentages, or exact amounts. Attach receipt photos for full transparency.
+                        </p>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="bg-slate-50 rounded-2xl p-8 border border-slate-100 hover:shadow-lg hover:border-blue-200 transition-all duration-300 group fade-in-up" style="transition-delay: 100ms;">
+                        <div class="w-14 h-14 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-blue-500 text-2xl mb-6 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                            <i class="fa-regular fa-comments"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-dark mb-3">Integrated Group Chat</h4>
+                        <p class="text-slate-600 leading-relaxed text-sm">
+                            Discuss expenses right where they happen. Send messages, react to payments, and keep the conversation contextual.
+                        </p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="bg-slate-50 rounded-2xl p-8 border border-slate-100 hover:shadow-lg hover:border-purple-200 transition-all duration-300 group fade-in-up" style="transition-delay: 200ms;">
+                        <div class="w-14 h-14 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-purple-500 text-2xl mb-6 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-dark mb-3">Monthly Settlements</h4>
+                        <p class="text-slate-600 leading-relaxed text-sm">
+                            Perfect for roommates. Get automated monthly reports summarizing all shared living expenses and one-click settlements.
+                        </p>
+                    </div>
+
+                    <!-- Feature 4 -->
+                    <div class="bg-slate-50 rounded-2xl p-8 border border-slate-100 hover:shadow-lg hover:border-orange-200 transition-all duration-300 group fade-in-up" style="transition-delay: 300ms;">
+                        <div class="w-14 h-14 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-orange-500 text-2xl mb-6 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-dark mb-3">Balance Tracking</h4>
+                        <p class="text-slate-600 leading-relaxed text-sm">
+                            Always know "who owes who". Our smart algorithm minimizes the total number of transactions needed to settle all debts.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: HOW IT WORKS / CONTACT -->
+        <section id="how-it-works" class="py-20 bg-slate-900 text-white relative overflow-hidden">
+            <!-- Decorative background -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-900/40 rounded-full blur-[100px] pointer-events-none"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="lg:grid lg:grid-cols-2 gap-16 items-start">
+                    
+                    <!-- How it Works Timeline -->
+                    <div class="mb-16 lg:mb-0 fade-in-up">
+                        <h2 class="text-3xl sm:text-4xl font-bold mb-4">How it works</h2>
+                        <p class="text-slate-400 mb-12 text-lg">Start splitting expenses in seconds. No complicated sign-ups.</p>
+
+                        <div class="space-y-10">
+                            <!-- Step 1 -->
+                            <div class="flex gap-6">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-12 h-12 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-brand-500/30 z-10">1</div>
+                                    <div class="w-0.5 h-full bg-slate-700 my-2"></div>
+                                </div>
+                                <div class="pb-6">
+                                    <h4 class="text-xl font-bold mb-2">Create a Group</h4>
+                                    <p class="text-slate-400">Download the Android app, enter a group name (like "Euro Trip"), and share the invite link with your friends.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 2 -->
+                            <div class="flex gap-6">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-12 h-12 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-brand-500/30 z-10">2</div>
+                                    <div class="w-0.5 h-full bg-slate-700 my-2"></div>
+                                </div>
+                                <div class="pb-6">
+                                    <h4 class="text-xl font-bold mb-2">Add Expenses</h4>
+                                    <p class="text-slate-400">Whenever someone pays for something, just add it to the group. We calculate everyone's share automatically.</p>
+                                </div>
+                            </div>
+
+                            <!-- Step 3 -->
+                            <div class="flex gap-6">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-12 h-12 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-brand-500/30 z-10">3</div>
+                                </div>
+                                <div>
+                                    <h4 class="text-xl font-bold mb-2">Settle Up</h4>
+                                    <p class="text-slate-400">When you're ready, hit "Settle Up" to see the simplest way to pay everyone back. Record the payment and you're done!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Form -->
+                    <div id="contact" class="bg-slate-800 rounded-3xl p-8 lg:p-10 border border-slate-700 shadow-2xl fade-in-up" style="transition-delay: 200ms;">
+                        <h3 class="text-2xl font-bold mb-2">Get in touch</h3>
+                        <p class="text-slate-400 mb-8 text-sm">Have questions about the app? We're here to help.</p>
+
+                        <form id="contact-form" onsubmit="handleFormSubmit(event)" class="space-y-5">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-slate-300 mb-1">Your Name</label>
+                                <input type="text" id="name" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all">
+                            </div>
+                            
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-slate-300 mb-1">Email Address</label>
+                                <input type="email" id="email" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all">
+                            </div>
+                            
+                            <div>
+                                <label for="message" class="block text-sm font-medium text-slate-300 mb-1">Message</label>
+                                <textarea id="message" rows="4" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all resize-none"></textarea>
+                            </div>
+
+                            <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 px-4 rounded-xl transition-colors shadow-lg shadow-brand-500/20 flex justify-center items-center gap-2">
+                                Send Message <i class="fa-regular fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA -->
+        <section class="py-20 bg-brand-500 text-white text-center px-4">
+            <div class="max-w-3xl mx-auto fade-in-up">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-6">Ready to ditch the spreadsheets?</h2>
+                <p class="text-brand-100 text-lg mb-10">Join thousands of groups already using SplitMate to manage their shared expenses without the headache.</p>
+                <button onclick="simulateDownload()" class="bg-white text-brand-600 hover:bg-slate-100 px-10 py-4 rounded-xl font-bold text-lg transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-3 mx-auto transform hover:-translate-y-1">
+                    <i class="fa-brands fa-android text-2xl text-brand-500"></i> Download SplitMate.apk
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-slate-400 py-12 border-t border-slate-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2 text-white font-bold text-xl">
+                <i class="fa-solid fa-wallet text-brand-500"></i> SplitMate
+            </div>
+            <div class="text-sm">
+                &copy; <span id="year"></span> SplitMate Inc. All rights reserved.
+            </div>
+            <div class="flex gap-6">
+                <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-twitter text-xl"></i></a>
+                <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-instagram text-xl"></i></a>
+                <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-github text-xl"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
+    <script>
+        // Set dynamic year in footer
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile Menu Toggle
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu on link click
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                menu.classList.add('hidden');
+            });
+        });
+
+        // Sticky Navbar styling on scroll
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                navbar.classList.add('shadow-md', 'bg-white/90');
+                navbar.classList.remove('bg-white/80');
+            } else {
+                navbar.classList.remove('shadow-md', 'bg-white/90');
+                navbar.classList.add('bg-white/80');
+            }
+        });
+
+        // Fade In Animation Observer
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in-up').forEach((elem) => {
+            observer.observe(elem);
+        });
+
+        // Custom Toast Notification Function (Replaces alert)
+        function showToast(message, iconClass = 'fa-solid fa-circle-check text-brand-500') {
+            const container = document.getElementById('toast-container');
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            
+            toast.innerHTML = `
+                <i class="${iconClass} text-xl"></i>
+                <div class="font-medium text-sm">${message}</div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Trigger reflow to enable transition
+            void toast.offsetWidth;
+            
+            // Show toast
+            toast.classList.add('show');
+            
+            // Hide and remove toast after 3.5 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300); // Wait for transition to finish
+            }, 3500);
+        }
+
+        // Simulate APK Download Action
+        function simulateDownload() {
+            showToast('Download started: SplitMate-v2.0.apk', 'fa-solid fa-download text-brand-500');
+        }
+
+        // Handle Contact Form Submission
+        function handleFormSubmit(e) {
+            e.preventDefault(); // Prevent page reload
+            const name = document.getElementById('name').value;
+            
+            // Simulate form processing
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...';
+            submitBtn.disabled = true;
+
+            setTimeout(() => {
+                showToast(`Thanks ${name}! Your message has been sent.`, 'fa-solid fa-envelope-circle-check text-brand-500');
+                e.target.reset(); // Clear form
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
