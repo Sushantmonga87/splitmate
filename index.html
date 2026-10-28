@@ -201,7 +201,8 @@
                 </nav>
 
                 <!-- CTA Button -->
-                <div class="hidden md:flex items-center">
+                <div class="hidden md:flex items-center gap-4">
+                    <a href="https://split-bills.taranveer.in" class="text-brand-600 hover:text-brand-700 border-2 border-brand-500 hover:bg-brand-50 px-5 py-2 rounded-full font-medium transition-all">Login</a>
                     <button onclick="simulateDownload()" class="bg-brand-500 hover:bg-brand-600 text-white px-6 py-2.5 rounded-full font-medium transition-all shadow-lg shadow-brand-500/30 flex items-center gap-2 transform hover:-translate-y-0.5">
                         <i class="fa-brands fa-android text-lg"></i>
                         Get the App
@@ -224,9 +225,14 @@
                 <a href="#features" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50">Features</a>
                 <a href="#how-it-works" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50">How it Works</a>
                 <a href="#contact" class="block px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50">Contact</a>
-                <button onclick="simulateDownload()" class="w-full mt-4 bg-brand-500 text-white px-4 py-3 rounded-lg font-medium flex items-center justify-center gap-2">
-                    <i class="fa-brands fa-android"></i> Download for Android
-                </button>
+                <div class="grid grid-cols-2 gap-3 mt-4 px-2">
+                    <a href="#login" class="w-full border-2 border-brand-500 text-brand-600 px-4 py-3 rounded-lg font-medium flex items-center justify-center hover:bg-brand-50 transition-colors">
+                        Login
+                    </a>
+                    <button onclick="simulateDownload()" class="w-full bg-brand-500 hover:bg-brand-600 transition-colors text-white px-4 py-3 rounded-lg font-medium flex items-center justify-center gap-2 shadow-lg shadow-brand-500/30">
+                        <i class="fa-brands fa-android"></i> App
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -235,12 +241,12 @@
     <main>
         
         <!-- SECTION 1: HOME (HERO) -->
-        <section id="home" class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <section id="home" class="relative min-h-[75vh] md:min-h-[85vh] lg:min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
             <!-- Background Decorations -->
             <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-brand-100 opacity-50 blur-3xl -z-10"></div>
             <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-72 h-72 rounded-full bg-blue-100 opacity-50 blur-3xl -z-10"></div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative w-full">
                 <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-center">
                     
                     <!-- Hero Text -->
@@ -442,7 +448,53 @@
         </section>
 
         <!-- SECTION 2.5: BENEFITS / WHY CHOOSE US -->
-        
+        <section id="benefits" class="py-20 bg-slate-50 relative border-t border-slate-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="lg:grid lg:grid-cols-2 gap-16 items-center">
+                    <div class="fade-in-left mb-12 lg:mb-0">
+                        <h2 class="text-brand-600 font-semibold tracking-wide uppercase text-sm mb-2">The SplitMate Advantage</h2>
+                        <h3 class="text-3xl sm:text-4xl font-bold text-dark mb-6">Designed for friends, built with bank-grade tech</h3>
+                        <p class="text-lg text-slate-600 mb-8">We believe managing money with friends shouldn't feel like a chore or compromise your privacy. That's why we built our app to be secure, blazingly fast, and incredibly easy to use.</p>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-start gap-4">
+                                <div class="mt-1 w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 shrink-0">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-dark text-lg">100% Free, No Hidden Fees</h4>
+                                    <p class="text-slate-600 text-sm">Unlike other apps, we don't charge you to use premium features or limit the number of groups you can create.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <div class="mt-1 w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 shrink-0">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-dark text-lg">Real-Time Cloud Sync</h4>
+                                    <p class="text-slate-600 text-sm">Add an expense and everyone in the group gets a notification instantly. Your data is always up to date across all devices.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <div class="mt-1 w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 shrink-0">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-dark text-lg">Secure & Private</h4>
+                                    <p class="text-slate-600 text-sm">Your financial data is encrypted in transit and at rest. We never sell your personal information to third parties.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fade-in-right relative">
+                        <!-- Abstract illustration for benefits -->
+                        <div class="absolute inset-0 bg-gradient-to-tr from-brand-100 to-blue-50 rounded-[3rem] transform rotate-3 scale-105 -z-10"></div>
+                        <img src="https://placehold.co/600x600/0f172a/10b981?text=Secure+Data+Sync" alt="Security Illustration" class="rounded-[3rem] shadow-2xl border border-slate-200 w-full object-cover">
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- SECTION 2.75: 3D APP SHOWCASE -->
         <section id="showcase" class="py-24 bg-dark text-white relative overflow-hidden">
             <!-- Background gradients for depth -->
@@ -520,54 +572,6 @@
                 </div>
             </div>
         </section>
-
-        <section id="benefits" class="py-20 bg-slate-50 relative border-t border-slate-200">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="lg:grid lg:grid-cols-2 gap-16 items-center">
-                    <div class="fade-in-left mb-12 lg:mb-0">
-                        <h2 class="text-brand-600 font-semibold tracking-wide uppercase text-sm mb-2">The SplitMate Advantage</h2>
-                        <h3 class="text-3xl sm:text-4xl font-bold text-dark mb-6">Designed for friends, built with bank-grade tech</h3>
-                        <p class="text-lg text-slate-600 mb-8">We believe managing money with friends shouldn't feel like a chore or compromise your privacy. That's why we built our app to be secure, blazingly fast, and incredibly easy to use.</p>
-                        
-                        <div class="space-y-6">
-                            <div class="flex items-start gap-4">
-                                <div class="mt-1 w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 shrink-0">
-                                    <i class="fa-solid fa-check"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-dark text-lg">100% Free, No Hidden Fees</h4>
-                                    <p class="text-slate-600 text-sm">Unlike other apps, we don't charge you to use premium features or limit the number of groups you can create.</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-4">
-                                <div class="mt-1 w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 shrink-0">
-                                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-dark text-lg">Real-Time Cloud Sync</h4>
-                                    <p class="text-slate-600 text-sm">Add an expense and everyone in the group gets a notification instantly. Your data is always up to date across all devices.</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-4">
-                                <div class="mt-1 w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 shrink-0">
-                                    <i class="fa-solid fa-shield-halved"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-dark text-lg">Secure & Private</h4>
-                                    <p class="text-slate-600 text-sm">Your financial data is encrypted in transit and at rest. We never sell your personal information to third parties.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="fade-in-right relative">
-                        <!-- Abstract illustration for benefits -->
-                        <div class="absolute inset-0 bg-gradient-to-tr from-brand-100 to-blue-50 rounded-[3rem] transform rotate-3 scale-105 -z-10"></div>
-                        <img src="https://placehold.co/600x600/0f172a/10b981?text=Secure+Data+Sync" alt="Security Illustration" class="rounded-[3rem] shadow-2xl border border-slate-200 w-full object-cover">
-                    </div>
-                </div>
-            </div>
-        </section>
-
 
         <!-- SECTION 3: HOW IT WORKS -->
         <section id="how-it-works" class="py-24 bg-slate-900 text-white relative overflow-hidden">
